@@ -1,71 +1,51 @@
 const tf = require('@tensorflow/tfjs-node');
 
-function normalized(data){ // 1 & r 
-  i = (data[0] - 12.585) / 6.813882
-  r = (data[1] - 51.4795) / 29.151289
-  v = (data[2] - 650.4795) / 552.6351
-  p = (data[3] - 10620.56 / 12152.78
-  return [i, r, v, p]
+function normalized(data){ // i & r
+    i = (data[0] - 12.585) / 6.813882
+    r = (data[1] - 51.4795) / 29.151289
+    v = (data[2] - 650.4795) / 552.6351
+    p = (data[3] - 10620.56) / 12152.78 
+    return [i, r, v, p]
 }
 
-const argFact = (compareFn) => (array) => array.map((el, idx) => [el, idx]).reduce(compareFn)[1]
+const argfact = (compareFn) => (array) => array.map((el, idx) => [el, idx]).reduce(compareFn)[1]
 const argMax = argFact((min, el) => (el[0] > min[0] ? el : min))
 
-function ArgMax(res){
-  label = "NORMAL"
-  cls_data = []
-  for(i=0; i<res.length; i++){
-    cls_data[1] = res[1]
-  }
-  console.log(cls_data, argMax(cls_data));
-  
-  if(argMax(cls_data) == 1){
-    label = "OVER VOLTAGE"
-  }if(argMax(cls_data) == 0){
-    label = "DROP VOLTAGE"
-  }
-  return label
-} 
+function ArgMAx(res){
+    label = "NORMAL"
+    if(argMAx(res) == 1){
+       label = "OVER VOLTAGE"
+    }if(argMAx(res) == 2){
+       label = "DROP VOLTAGE"
+    }
+    return label
+}
+
 
 async function classify(data){
-  let in_dim = 4; //i r v p
-  
-  data = normalized(data);
-  shape = [1, in_dim];
-  
-  tf_data = tf.tensor2d(data, shape);
-  
-  try{
-    // path load in public access => github
-    const path = 'https://raw.githubusercontent.com/brian210996/forum12jst/main/public/cls_model/model.json';
-    const model = await tf.loadGrapheModel(path);
+    let in_dim = 4; // i r v p
     
-    predict = model.predict(
-            tf_data
-      );
-      result = predict.dataSync();
-      return ArgMax( result );
-    
-  }catch(e){
-    console.log(e);
-  }
+    data = normalized(data);
+    shape = [1, in_dim];
+
+    tf_data = tf.tensor2d(data, shape);
+
+    try{
+        // path load in public access => github
+        const path = 'https://raw.githubusercontent.com/brendawinata/bot-jst55/main/public/cls_model/model.json';
+        const model = await tf.loadGraphModel(path);
+        
+        predict = model.predict(
+                tf_data
+        );
+        result = predict.dataSync();
+        return ArgMAx( result );
+        
+    }catch(e){
+      console.log(e);
+    }
 }
 
 module.exports = {
-  classify: classify
+    classify: classify 
 }
-    
-    
-    
-    
-    
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
