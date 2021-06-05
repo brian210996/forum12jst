@@ -4,29 +4,34 @@ function normalized(data){ // i & r
     i = (data[0] - 12.585) / 6.813882
     r = (data[1] - 51.4795) / 29.151289
     v = (data[2] - 650.4795) / 552.6351
-    p = (data[3] - 10620.56) / 12152.78 
+    p = (data[3] - 10620.56) / 12152.78   
     return [i, r, v, p]
 }
 
-const argfact = (compareFn) => (array) => array.map((el, idx) => [el, idx]).reduce(compareFn)[1]
+const argFact = (compareFn) => (array) => array.map((el, idx) => [el, idx]).reduce(compareFn)[1]
 const argMax = argFact((min, el) => (el[0] > min[0] ? el : min))
 
-function ArgMAx(res){
-    label = "NORMAL"
-    if(argMAx(res) == 1){
-       label = "OVER VOLTAGE"
-    }if(argMAx(res) == 2){
-       label = "DROP VOLTAGE"
+function ArgMax(res){
+  label = "NORMAL"
+  cls_data = []
+    for(i=0; i<res.length; i++){
+        cls_data[i] = res[i]
     }
-    return label
+    console.log(cls_data, argMax(cls_data));
+    
+    if(argMax(cls_data) == 1){
+        label = "OVER VOLTAGE"
+    }if(argMax(cls_data) == 0){
+        label = "DROP VOLTAGE"
+    }
+  return label  
 }
 
-
 async function classify(data){
-    let in_dim = 4; // i r v p
+    let in_dim = 4; // i r v p 
     
     data = normalized(data);
-    shape = [1, in_dim];
+    shape = [1, in_dim]; 
 
     tf_data = tf.tensor2d(data, shape);
 
@@ -39,7 +44,7 @@ async function classify(data){
                 tf_data
         );
         result = predict.dataSync();
-        return ArgMAx( result );
+        return ArgMax( result );
         
     }catch(e){
       console.log(e);
